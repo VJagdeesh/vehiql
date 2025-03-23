@@ -35,6 +35,8 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
-This adds a new section titled **Upcoming Feature** with a description of the "Join Waitlist" feature. Let me know if you need further modifications!
+## Upcoming Feature
+
+This adds a new section titled with a description of the "Join Waitlist" feature. Let me know if you need further modifications!
 
 Add Sign In Button in landing page below
