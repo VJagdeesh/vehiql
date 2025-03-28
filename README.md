@@ -40,3 +40,5 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 This adds a new section titled with a description of the "Join Waitlist" feature. Let me know if you need further modifications!
 
 Add Sign In Button in landing page below
+
+Add multi-language support
