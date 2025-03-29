@@ -2,7 +2,7 @@ import React from "react";
 import AddCarForm from "../../_components/AddCarForm";
 
 export const metadata = {
-  title: "Add car | Admin",
+  title: "Add Car | Admin",
   description: "Place for adding new car...",
 };
 
