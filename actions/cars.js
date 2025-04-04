@@ -1,3 +1,4 @@
+"use server";
 import { db } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase";
 import { auth } from "@clerk/nextjs/server";
@@ -7,7 +8,7 @@ import { cookies } from "next/headers";
 import { v4 as uuidv4 } from "uuid";
 
 const fileToBase64 = async (file) => {
-  const bytes = await file.arraybuffer();
+  const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
   return buffer.toString("base64");
 };
