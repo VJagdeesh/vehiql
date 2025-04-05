@@ -303,7 +303,7 @@ export const updateCarStatus = async (id, { status, featured }) => {
     }
     await db.car.update({
       where: { id },
-      updateData,
+      data: updateData,
     });
     revalidatePath("/admin/cars");
     return {
