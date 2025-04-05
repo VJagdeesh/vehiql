@@ -1,4 +1,5 @@
 "use server";
+import { serializedCarData } from "@/lib/helper";
 import { db } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase";
 import { auth } from "@clerk/nextjs/server";
@@ -179,5 +180,139 @@ export const addCar = async ({ carData, images }) => {
     };
   } catch (e) {
     throw new Error(e.message);
+  }
+};
+
+export const getCars = async (search = "") => {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("Unauthorized");
+    }
+    const user = await db.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) throw new Error("Unauthorized ");
+    let where = {};
+    if (search) {
+      where.OR = [
+        { make: contains(search), mode: insesitive },
+        { models: contains(search), mode: insesitive },
+        { color: contains(search), mode: insesitive },
+      ];
+    }
+    const cars = await db.car.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+    });
+    const serializedCars = cars.map(serializedCarData);
+    return {
+      success: true,
+      data: serializedCars,
+    };
+  } catch (e) {
+    return {
+      success: false,
+      data: e.message,
+    };
+  }
+};
+
+export const deleteCar = async (id) => {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("Unauthorized");
+    }
+    const user = await db.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) throw new Error("Unauthorized ");
+
+    const car = await db.car.findUnique({
+      where: { id },
+      select: { images: true },
+    });
+
+    if (!car) {
+      return {
+        success: false,
+        message: "Car not found",
+      };
+    }
+    await db.car.delete({
+      where: { id },
+    });
+
+    try {
+      const cookieStore = await cookies();
+      const supabase = createClient(cookieStore);
+      const filePaths = car.images
+        .map((imgUrl) => {
+          const url = new URL(imgUrl);
+          const pathMatch = url.pathname.match(/\/car-images\/(.*)/);
+          return pathMatch ? pathMatch[1] : null;
+        })
+        .filter(Boolean);
+
+      if (filePaths.length > 0) {
+        const { error } = await supabase.storage
+          .from("car-images")
+          .remove(filePaths);
+        if (error) {
+          console.log(error.message);
+        }
+      }
+    } catch (err) {
+      console.log("Error deleting images from Supabase:", err);
+    }
+    revalidatePath("/admin/cars");
+    return {
+      success: true,
+    };
+  } catch (e) {
+    return {
+      success: false,
+      message: e.message,
+    };
+  }
+};
+
+export const updateCarStatus = async (id, { status, featured }) => {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("Unauthorized");
+    }
+    const user = await db.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+    if (!user) throw new Error("Unauthorized ");
+    let updateData = {};
+    if (status !== undefined) {
+      updateData.status = status;
+    }
+    if (featured !== undefined) {
+      updateData.featured = featured;
+    }
+    await db.car.update({
+      where: { id },
+      updateData,
+    });
+    revalidatePath("/admin/cars");
+    return {
+      success: true,
+    };
+  } catch (e) {
+    return {
+      success: false,
+      message: e.message,
+    };
   }
 };
