@@ -198,9 +198,9 @@ export const getCars = async (search = "") => {
     let where = {};
     if (search) {
       where.OR = [
-        { make: contains(search), mode: insesitive },
-        { models: contains(search), mode: insesitive },
-        { color: contains(search), mode: insesitive },
+        { make: { contains: search, mode: "insensitive" } },
+        { model: { contains: search, mode: "insensitive" } },
+        { color: { contains: search, mode: "insensitive" } },
       ];
     }
     const cars = await db.car.findMany({
