@@ -19,7 +19,7 @@ export async function getDealshipInfo() {
       include: {
         workingHours: {
           orderBy: {
-            dayofweek: "asc",
+            dayOfWeek: "asc",
           },
         },
       },
@@ -31,43 +31,43 @@ export async function getDealshipInfo() {
           workingHours: {
             create: [
               {
-                dayofweek: "MONDAY",
+                dayOfWeek: "MONDAY",
                 openTime: "08:00",
                 closeTime: "18:00",
                 isOpen: true,
               },
               {
-                dayofweek: "TUESDAY",
+                dayOfWeek: "TUESDAY",
                 openTime: "08:00",
                 closeTime: "18:00",
                 isOpen: true,
               },
               {
-                dayofweek: "WEDNESDAY",
+                dayOfWeek: "WEDNESDAY",
                 openTime: "08:00",
                 closeTime: "18:00",
                 isOpen: true,
               },
               {
-                dayofweek: "THURSDAY",
+                dayOfWeek: "THURSDAY",
                 openTime: "08:00",
                 closeTime: "18:00",
                 isOpen: true,
               },
               {
-                dayofweek: "FRIDAY",
+                dayOfWeek: "FRIDAY",
                 openTime: "08:00",
                 closeTime: "18:00",
                 isOpen: true,
               },
               {
-                dayofweek: "SATURDAY",
+                dayOfWeek: "SATURDAY",
                 openTime: "09:00",
                 closeTime: "17:00",
                 isOpen: false,
               },
               {
-                dayofweek: "SUNDAY",
+                dayOfWeek: "SUNDAY",
                 openTime: "09:00",
                 closeTime: "17:00",
                 isOpen: false,
@@ -78,7 +78,7 @@ export async function getDealshipInfo() {
         include: {
           workingHours: {
             orderBy: {
-              dayofweek: "asc",
+              dayOfWeek: "asc",
             },
           },
         },
@@ -93,7 +93,7 @@ export async function getDealshipInfo() {
       },
     };
   } catch (e) {
-    throw new Error("Error fetching data ", e.message);
+    throw new Error("Error fetching data: " + e.message);
   }
 }
 
@@ -110,16 +110,22 @@ export async function saveWorkingHours(workingHours) {
     });
     if (!user || user.role !== "ADMIN") throw new Error("Unauthorized ");
 
-    await db.workingHours.deleteMany({
+    const dealership = await db.dealershipInfo.findFirst();
+
+    if (!dealership) {
+      throw new Error("Dealership info not found");
+    }
+
+    await db.workingHour.deleteMany({
       where: {
         dealershipId: dealership.id,
       },
     });
 
     for (const hours of workingHours) {
-      await db.workingHours.create({
+      await db.workingHour.create({
         data: {
-          dayofweek: hours.dayOfweek,
+          dayOfWeek: hours.dayOfWeek,
           openTime: hours.openTime,
           closeTime: hours.closeTime,
           isOpen: hours.isOpen,
@@ -133,7 +139,7 @@ export async function saveWorkingHours(workingHours) {
       success: true,
     };
   } catch (e) {
-    throw new Error("Error saving working hours data ", e.message);
+    throw new Error("Error saving working hours data: " + e.message);
   }
 }
 
